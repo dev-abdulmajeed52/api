@@ -10,11 +10,7 @@ import config from './config/config.js';
 
 const app = express();
 
-app.use(
-  cors({
-    origin: (origin, cb) => {cb(null, true);},
-    credentials: true,
-  }));
+app.use(cors());
 app.use(express.json());
 
 
