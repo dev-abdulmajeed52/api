@@ -13,6 +13,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.use('/', (req, res) => {
+  res.send('Welcome to the Job Portal API!');
+})
+
 app.use('/api/auth', authRoutes);
 app.use('/api/interview', interviewRoutes);
 app.use('/api/jobs', jobRoutes);
