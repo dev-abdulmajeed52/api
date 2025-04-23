@@ -1,10 +1,14 @@
-const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
 
-const interviewSchema = new mongoose.Schema({
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    jobId: { type: mongoose.Schema.Types.ObjectId, ref: 'Job' },
+const interviewSchema = new Schema({
+    userId: { type: Schema.Types.ObjectId, ref: 'User' },
+    jobId: { type: Schema.Types.ObjectId, ref: 'Job' },
     type: { type: String, enum: ['actual', 'mock'] },
     chatHistory: [{ role: String, message: String }],
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
+    sessionExpiresAt: {
+      type: Date,
+      required: true
+    }
   });
-  module.exports = mongoose.model('Interview', interviewSchema);
+  export default model('Interview', interviewSchema);

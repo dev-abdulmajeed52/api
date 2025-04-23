@@ -1,8 +1,8 @@
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+import { hash, compare } from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
 
-exports.register = async (req, res) => {
+export async function register(req, res) {
   try {
     const { name, email, password, role } = req.body;
 
@@ -11,7 +11,7 @@ exports.register = async (req, res) => {
       return res.status(400).json({ msg: 'Email already registered' });
     }
 
-    const hashed = await bcrypt.hash(password, 10);
+    const hashed = await hash(password, 10);
     const user = new User({ name, email, password: hashed, role });
     await user.save();
 
@@ -31,9 +31,9 @@ exports.register = async (req, res) => {
     console.error('Register Error:', err);
     res.status(500).json({ msg: 'Something went wrong during registration' });
   }
-};
+}
 
-exports.login = async (req, res) => {
+export async function login(req, res) {
   try {
     const { email, password } = req.body;
 
@@ -42,7 +42,7 @@ exports.login = async (req, res) => {
       return res.status(401).json({ msg: 'Invalid credentials' });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ msg: 'Invalid credentials' });
     }
@@ -67,4 +67,4 @@ exports.login = async (req, res) => {
     console.error('Login Error:', err);
     res.status(500).json({ msg: 'Something went wrong during login' });
   }
-};
+}

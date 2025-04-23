@@ -1,13 +1,9 @@
-const router = require('express').Router();
-const {
-  createJob,
-  getAllJobs,
-  updateJob,
-  deleteJob
-} = require('../controllers/jobController');
+import express from 'express';
+import { createJob, getAllJobs, updateJob, deleteJob } from '../controllers/jobController.js';
+import auth from '../middlewares/authMiddleware.js';
+import roleCheck from '../middlewares/roleMiddleware.js';
 
-const auth = require('../middlewares/authMiddleware');
-const roleCheck = require('../middlewares/roleMiddleware');
+const router = express.Router();
 
 router.post('/', auth, roleCheck(['company']), createJob);
 
@@ -17,4 +13,4 @@ router.put('/:id', auth, roleCheck(['company']), updateJob);
 
 router.delete('/:id', auth, roleCheck(['company']), deleteJob);
 
-module.exports = router;
+export default router;

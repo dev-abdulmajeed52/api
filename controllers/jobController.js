@@ -1,7 +1,7 @@
-const Job = require('../models/Job');
+import Job from '../models/Job.js';
 
 // Create a new job
-exports.createJob = async (req, res) => {
+export async function createJob(req, res) {
   try {
     const { title, description, requirements, salary,type, location } = req.body;
     const job = new Job({
@@ -18,9 +18,9 @@ exports.createJob = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: 'Failed to create job', details: err.message });
   }
-};
+}
 
-exports.getAllJobs = async (req, res) => {
+export async function getAllJobs(req, res) {
   try {
     const { createdBy } = req.query; 
     const filter = createdBy ? { createdBy } : {};
@@ -29,9 +29,9 @@ exports.getAllJobs = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch jobs', details: err.message });
   }
-};
+}
 
-exports.updateJob = async (req, res) => {
+export async function updateJob(req, res) {
   try {
     const { id } = req.params;
     const updates = req.body;
@@ -44,10 +44,10 @@ exports.updateJob = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: 'Failed to update job', details: err.message });
   }
-};
+}
 
 // Delete job by ID
-exports.deleteJob = async (req, res) => {
+export async function deleteJob(req, res) {
   try {
     const { id } = req.params;
 
@@ -59,4 +59,4 @@ exports.deleteJob = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: 'Failed to delete job', details: err.message });
   }
-};
+}

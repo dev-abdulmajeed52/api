@@ -1,7 +1,9 @@
-const router = require('express').Router();
-const { startInterview } = require('../controllers/interviewController');
-const auth = require('../middlewares/authMiddleware');
-const roleCheck = require('../middlewares/roleMiddleware');
+import express from 'express';
+import { startInterview } from '../controllers/interviewController.js';
+import auth from '../middlewares/authMiddleware.js';
+import roleCheck from '../middlewares/roleMiddleware.js';
+
+const router = express.Router();
 
 router.post('/start', auth, roleCheck(['applicant']), startInterview);
-module.exports = router;
+export default router;

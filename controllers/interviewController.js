@@ -1,7 +1,7 @@
-const Interview = require('../models/Interview');
-const { askAI } = require('../utils/groqApi');
+import Interview from '../models/Interview.js';
+import { askAI } from '../utils/groqApi.js';
 
-exports.startInterview = async (req, res) => {
+export async function startInterview(req, res) {
   const { type, input } = req.body;
   const aiResponse = await askAI(input);
   const interview = new Interview({
@@ -12,4 +12,4 @@ exports.startInterview = async (req, res) => {
   });
   await interview.save();
   res.json(interview);
-};
+}

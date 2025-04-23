@@ -1,6 +1,6 @@
-const axios = require('axios');
+import axios from 'axios';
 
-exports.askAI = async (prompt) => {
+export async function askAI(prompt) {
   try {
     const response = await axios.post(
       'https://api.groq.com/openai/v1/chat/completions',
@@ -23,4 +23,4 @@ exports.askAI = async (prompt) => {
     console.error('Groq API error:', error.message);
     return 'Sorry, I encountered an error while processing your request.';
   }
-};
+}

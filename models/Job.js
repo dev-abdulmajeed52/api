@@ -1,14 +1,14 @@
-const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
 
 
-const jobSchema = new mongoose.Schema({
+const jobSchema = new Schema({
     title: String,
     description: String,
     requirements: [String],
     salary: String,
     type:  String,
     location: String,
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
     createdAt: { type: Date, default: Date.now }
   });
-  module.exports = mongoose.model('Job', jobSchema);
+  export default model('Job', jobSchema);
