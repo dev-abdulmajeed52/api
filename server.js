@@ -10,9 +10,12 @@ import config from './config/config.js';
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: (origin, cb) => {cb(null, true);},
+    credentials: true,
+  }));
 app.use(express.json());
-
 
 
 app.use('/api/auth', authRoutes);
