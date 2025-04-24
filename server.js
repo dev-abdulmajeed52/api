@@ -5,6 +5,7 @@ import authRoutes from './routes/authRoutes.js';
 import interviewRoutes from './routes/interviewRoutes.js';
 import jobRoutes from './routes/jobRoutes.js';
 import applicantRoutes from './routes/applicantRoutes.js';
+import profile from './routes/profile.js';
 import config from './config/config.js';
 
 
@@ -18,6 +19,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/interview', interviewRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/applicant', applicantRoutes);
+app.use('/api/profile', profile);
 
 const port = config.app.port || 5000;
 connectDB().then(() => {

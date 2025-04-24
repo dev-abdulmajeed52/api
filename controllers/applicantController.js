@@ -4,8 +4,16 @@ import { askAI } from '../utils/groqApi.js';
 import Job from '../models/Job.js';
 
 const applyJob = async (req, res) => {
-  const { jobId,description,requirements,title } = req.body;
-  const application = new Application({ jobId,title,description,requirements, applicantId: req.user.id });
+  const { jobId, description, requirements, title } = req.body;
+
+  const application = new Application({
+    jobId,
+    title,
+    description,
+    requirements,
+    applicantId: req.user.id
+  });
+
   await application.save();
   res.json({ msg: 'Applied successfully', application });
 };
@@ -16,18 +24,18 @@ const startChatInterview = async (req, res) => {
   const job = await Job.findById(jobId).populate('createdBy', 'name');
   if (!job) return res.status(404).json({ msg: 'Job not found' });
 
-  const { description, requirements, title } = job;
+  const { description, requirements = [], title } = job;
 
   const aiPrompt = `
-    You are an interviewer for a Backend Developer position. The job description is as follows:
-    ${description}
+You are an interviewer for a Backend Developer position. The job description is as follows:
 
-    The job requirements are:
-    ${requirements.join(', ')}
+"${description}"
 
-    The candidate has said: "${message}"
+The job requirements are: ${Array.isArray(requirements) ? requirements.join(', ') : requirements}
 
-    Please ask relevant questions based on the job description and requirements.
+The candidate has said: "${message}"
+
+Please ask a relevant follow-up question based on the job details above.
   `;
 
   const aiResponse = await askAI(aiPrompt);
@@ -39,7 +47,7 @@ const startChatInterview = async (req, res) => {
     description,
     requirements,
     type: 'actual',
-    sessionExpiresAt: new Date(Date.now() + 15 * 60 * 1000), // 15 minutes from now
+    sessionExpiresAt: new Date(Date.now() + 15 * 60 * 1000), // 15-minute session
     chatHistory: [
       { role: 'applicant', message },
       { role: 'ai', message: aiResponse }
@@ -59,48 +67,45 @@ const startChatInterview = async (req, res) => {
 };
 
 const continueChatInterview = async (req, res) => {
-  const { interviewId } = req.params;
-  const { message } = req.body;
+  const { jobId, message } = req.body;
 
-  const interview = await InterviewfindById(interviewId);
-  if (!interview) return res.status(404).json({ msg: 'Interview not found' });
+  const interview = await Interview.findOne({
+    userId: req.user.id,
+    jobId,
+    type: 'actual',
+    sessionExpiresAt: { $gt: new Date() }
+  });
 
-  // Get the job details for context
-  const job = await Job.findById(interview.jobId);
-  if (!job) return res.status(404).json({ msg: 'Job not found' });
+  if (!interview) {
+    return res.status(404).json({ msg: 'Active interview session not found or expired' });
+  }
+
+  interview.chatHistory.push({ role: 'applicant', message });
+
+  const chatContext = interview.chatHistory
+    .map((c) => `${c.role === 'applicant' ? 'Candidate' : 'Interviewer'}: ${c.message}`)
+    .join('\n');
 
   const aiPrompt = `
-    You are continuing a technical interview for a frontend developer role.
+You are an interviewer for a Backend Developer position. Continue the conversation below based on the job information.
 
-    Job Description:
-    ${job.description}
+Job Title: ${interview.title}
+Description: ${interview.description}
+Requirements: ${Array.isArray(interview.requirements) ? interview.requirements.join(', ') : interview.requirements}
 
-    Requirements:
-    ${job.requirements.join(', ')}
+Chat history so far:
+${chatContext}
 
-    Previous Chat History:
-    ${interview.chatHistory.map(c => `${c.role === 'ai' ? 'AI' : 'Applicant'}: ${c.message}`).join('\n')}
-
-    New message from the applicant:
-    "${message}"
-
-    Respond with a relevant interview question or follow-up.
+Please ask a relevant follow-up question based on this exchange.
   `;
 
   const aiResponse = await askAI(aiPrompt);
 
-  interview.chatHistory.push(
-    { role: 'applicant', message },
-    { role: 'ai', message: aiResponse }
-  );
-
+  interview.chatHistory.push({ role: 'ai', message: aiResponse });
   await interview.save();
 
-  res.json(interview);
+  res.json({ message: aiResponse, interview });
 };
-
-
-
 
 const applicantController = {
   applyJob,
